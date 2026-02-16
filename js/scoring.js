@@ -71,11 +71,11 @@ export function getRankAchieved(numPlayers, teamPoints) {
  */
 function getBonusStartRank(trumpCategory) {
   switch (trumpCategory) {
-    case 'color': return 1;
-    case '1or7': return 2;
-    case 'otherNumber': return 3;
-    case 'none': return 4;
-    default: return 1;
+    case 'color': return 0;
+    case '1or7': return 1;
+    case 'otherNumber': return 2;
+    case 'none': return 3;
+    default: return 0;
   }
 }
 
@@ -95,15 +95,12 @@ export function getFulfillmentBonus(chiefTrumpChoice, chiefBid, teamPoints, numP
   const trumpCat = classifyTrump(chiefTrumpChoice);
   const startRank = getBonusStartRank(trumpCat);
 
-  // The rank achieved is the highest bid level the team's points satisfy
-  const rankAchieved = getRankAchieved(numPlayers, teamPoints);
-
-  // Bonus rank = rankAchieved offset by the trump category start
-  // For "Color": rank achieved directly maps to bonus (rank 1 → 10, rank 2 → 20, ...)
-  // For "1 or 7": rank must be ≥ 2 to get bonus rank 1, etc.
-  // The bonus rank is: rankAchieved - (startRank - 1)
-  const bonusRank = rankAchieved - (startRank - 1);
-  if (bonusRank <= 0) return 0;
+  // Bonus rank = Chief's bid offset by the trump category start
+  // For "color": rank achieved directly maps to bonus (rank 1 → 10, rank 2 → 20, ...)
+  // For "1or7": rank achieved gets increased by 1
+  // For "other Number": rank achieved gets increased by 2
+  // For "none": rank achieved gets increased by 3
+  const bonusRank = chiefBid + startRank;
 
   return Math.min(bonusRank * 10, 100);
 }
