@@ -1,0 +1,399 @@
+// ui.js — DOM creation and rendering helpers for Mü Scoring App
+
+import { getTeamTarget, getMaxBid } from './scoring.js';
+
+const TRUMP_OPTIONS = [
+  { value: '', label: '— select —' },
+  { value: 'red', label: 'Red' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'purple', label: 'Purple' },
+  { value: 'yellow', label: 'Yellow' },
+  { value: 'green', label: 'Green' },
+  { value: '0', label: '0' },
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5', label: '5' },
+  { value: '6', label: '6' },
+  { value: '7', label: '7' },
+  { value: '8', label: '8' },
+  { value: '9', label: '9' },
+  { value: 'none', label: 'None' },
+];
+
+function el(tag, attrs = {}, children = []) {
+  const elem = document.createElement(tag);
+  for (const [key, val] of Object.entries(attrs)) {
+    if (key === 'className') elem.className = val;
+    else if (key === 'textContent') elem.textContent = val;
+    else if (key === 'innerHTML') elem.innerHTML = val;
+    else if (key.startsWith('on')) elem.addEventListener(key.slice(2).toLowerCase(), val);
+    else elem.setAttribute(key, val);
+  }
+  for (const child of Array.isArray(children) ? children : [children]) {
+    if (typeof child === 'string') elem.appendChild(document.createTextNode(child));
+    else if (child) elem.appendChild(child);
+  }
+  return elem;
+}
+
+function createSelect(options, selectedValue, onChange) {
+  const select = el('select', { onChange });
+  for (const opt of options) {
+    const option = el('option', { value: opt.value, textContent: opt.label });
+    if (String(opt.value) === String(selectedValue)) option.selected = true;
+    select.appendChild(option);
+  }
+  return select;
+}
+
+function playerOptions(players, includeNone = false) {
+  const opts = [{ value: '', label: '— select —' }];
+  players.forEach((name, i) => opts.push({ value: String(i), label: name }));
+  if (includeNone) opts.push({ value: 'none_player', label: 'None' });
+  return opts;
+}
+
+function bidOptions(numPlayers) {
+  const max = getMaxBid(numPlayers);
+  const opts = [{ value: '', label: '—' }];
+  for (let i = 1; i <= max; i++) opts.push({ value: String(i), label: String(i) });
+  return opts;
+}
+
+// ── Player Setup ──
+
+export function renderPlayerSetup(container, onStart) {
+  const wrapper = el('div', { className: 'player-setup' });
+
+  const title = el('h2', { textContent: 'New Game' });
+  wrapper.appendChild(title);
+
+  const countLabel = el('label', { textContent: 'Number of players: ' });
+  const countSelect = createSelect(
+    [3, 4, 5, 6].map(n => ({ value: String(n), label: String(n) })),
+    '4',
+    () => renderFields()
+  );
+  countLabel.appendChild(countSelect);
+  wrapper.appendChild(countLabel);
+
+  const fieldsDiv = el('div', { className: 'player-fields' });
+  wrapper.appendChild(fieldsDiv);
+
+  function renderFields() {
+    const count = parseInt(countSelect.value, 10);
+    fieldsDiv.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const row = el('div', { className: 'player-name-row' });
+      const label = el('label', { textContent: `Player ${i + 1}: ` });
+      const input = el('input', { type: 'text', placeholder: `Player ${i + 1}`, className: 'player-name-input' });
+      label.appendChild(input);
+      row.appendChild(label);
+      fieldsDiv.appendChild(row);
+    }
+  }
+
+  renderFields();
+
+  const startBtn = el('button', {
+    textContent: 'Start Game',
+    className: 'btn btn-primary',
+    onClick: () => {
+      const inputs = fieldsDiv.querySelectorAll('.player-name-input');
+      const names = Array.from(inputs).map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
+      onStart(names);
+    },
+  });
+  wrapper.appendChild(startBtn);
+
+  container.appendChild(wrapper);
+}
+
+// ── Banner ──
+
+export function renderBanner() {
+  const banner = document.getElementById('banner');
+  if (!banner) return;
+  banner.innerHTML = '';
+  const logo = el('img', { src: 'img/mue-and-more_logo.svg', alt: 'Mü Logo', className: 'banner-logo' });
+  const dragons = el('img', { src: 'img/Dragons_Header_LONG-1500px.png', alt: 'Dragons', className: 'banner-dragons' });
+  banner.appendChild(logo);
+  banner.appendChild(dragons);
+}
+
+// ── Reset Button ──
+
+export function renderResetButton(container, onReset) {
+  const btn = el('button', {
+    textContent: 'Reset Game',
+    className: 'btn btn-reset',
+    onClick: onReset,
+  });
+  container.appendChild(btn);
+}
+
+// ── Normal Round Card ──
+
+export function renderRoundCard(container, roundIndex, round, players, result, { onUpdate, onRemove }) {
+  const numPlayers = players.length;
+  const is3Player = numPlayers === 3;
+
+  const card = el('div', { className: 'round-card' });
+
+  // Header
+  const header = el('div', { className: 'round-header' });
+  header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1}` }));
+  const trashBtn = el('button', {
+    className: 'btn-trash',
+    innerHTML: '&#128465;',
+    title: 'Delete round',
+    onClick: onRemove,
+  });
+  header.appendChild(trashBtn);
+  card.appendChild(header);
+
+  // Round info form
+  const form = el('div', { className: 'round-form' });
+
+  // Row 1: Chief + Vice
+  const row1 = el('div', { className: 'form-row' });
+  row1.appendChild(labeledSelect('Chief:', playerOptions(players), round.chief, v => onUpdate('chief', v)));
+  if (!is3Player) {
+    row1.appendChild(labeledSelect('Vice:', playerOptions(players), round.vice, v => onUpdate('vice', v)));
+  }
+  form.appendChild(row1);
+
+  // Row 2: Partner + Vice's trump
+  const row2 = el('div', { className: 'form-row' });
+  if (!is3Player) {
+    row2.appendChild(labeledSelect("Chief's Partner:", playerOptions(players), round.partner, v => onUpdate('partner', v)));
+    row2.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+  }
+  form.appendChild(row2);
+
+  // Row 3: Chief's trump + bid + target
+  const row3 = el('div', { className: 'form-row' });
+  row3.appendChild(labeledSelect("Chief's Trump:", TRUMP_OPTIONS, round.chiefTrump, v => onUpdate('chiefTrump', v)));
+  row3.appendChild(labeledSelect('Bid:', bidOptions(numPlayers), round.chiefBid, v => onUpdate('chiefBid', v)));
+
+  const targetSpan = el('span', {
+    className: 'target-display',
+    textContent: `Target: ${result.target !== null && result.target !== undefined ? result.target : '—'}`,
+  });
+  row3.appendChild(targetSpan);
+  form.appendChild(row3);
+
+  card.appendChild(form);
+
+  // Score table
+  const table = el('table', { className: 'score-table' });
+
+  // Header row
+  const thead = el('thead');
+  const headRow = el('tr');
+  headRow.appendChild(el('th', { textContent: '' }));
+  for (const name of players) {
+    headRow.appendChild(el('th', { textContent: name }));
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = el('tbody');
+
+  // Points row (editable)
+  const pointsRow = el('tr');
+  pointsRow.appendChild(el('td', { textContent: 'Points', className: 'row-label' }));
+  for (let p = 0; p < numPlayers; p++) {
+    const td = el('td');
+    const input = el('input', {
+      type: 'number',
+      className: 'pips-input',
+      value: round.pips[p] !== '' ? String(round.pips[p]) : '',
+      onInput: (e) => onUpdate(`pips.${p}`, e.target.value === '' ? '' : Number(e.target.value)),
+    });
+    td.appendChild(input);
+    pointsRow.appendChild(td);
+  }
+  tbody.appendChild(pointsRow);
+
+  // Bonus row (computed)
+  const bonusRow = el('tr');
+  bonusRow.appendChild(el('td', { textContent: 'Bonus', className: 'row-label' }));
+  for (let p = 0; p < numPlayers; p++) {
+    const val = result.bonus[p];
+    const td = el('td', {
+      textContent: val !== 0 ? String(val) : '—',
+      className: val > 0 ? 'positive' : val < 0 ? 'negative' : '',
+    });
+    bonusRow.appendChild(td);
+  }
+  tbody.appendChild(bonusRow);
+
+  // Sum row (computed)
+  const sumRow = el('tr', { className: 'sum-row' });
+  sumRow.appendChild(el('td', { textContent: 'Sum', className: 'row-label' }));
+  for (let p = 0; p < numPlayers; p++) {
+    const val = result.sum[p];
+    sumRow.appendChild(el('td', { textContent: String(val) }));
+  }
+  tbody.appendChild(sumRow);
+
+  table.appendChild(tbody);
+  card.appendChild(table);
+
+  // Validation errors
+  if (result.errors.length > 0) {
+    const errDiv = el('div', { className: 'validation-errors' });
+    for (const err of result.errors) {
+      errDiv.appendChild(el('div', { textContent: err, className: 'error-msg' }));
+    }
+    card.appendChild(errDiv);
+  }
+
+  container.appendChild(card);
+}
+
+// ── Stalemate Round Card ──
+
+export function renderStalemateCard(container, roundIndex, round, players, result, { onUpdate, onRemove }) {
+  const numPlayers = players.length;
+  const card = el('div', { className: 'round-card stalemate-card' });
+
+  // Header
+  const header = el('div', { className: 'round-header' });
+  header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1} (Stalemate)` }));
+  const trashBtn = el('button', {
+    className: 'btn-trash',
+    innerHTML: '&#128465;',
+    title: 'Delete round',
+    onClick: onRemove,
+  });
+  header.appendChild(trashBtn);
+  card.appendChild(header);
+
+  // Tied players checkboxes
+  const form = el('div', { className: 'round-form' });
+
+  const tiedLabel = el('div', { className: 'form-label', textContent: 'Tied players:' });
+  form.appendChild(tiedLabel);
+
+  const checkboxRow = el('div', { className: 'checkbox-row' });
+  for (let i = 0; i < numPlayers; i++) {
+    const label = el('label', { className: 'checkbox-label' });
+    const cb = el('input', {
+      type: 'checkbox',
+      value: String(i),
+      onChange: () => {
+        const checked = Array.from(checkboxRow.querySelectorAll('input[type=checkbox]:checked'))
+          .map(c => Number(c.value));
+        onUpdate('tiedPlayers', checked);
+      },
+    });
+    if (round.tiedPlayers.includes(i)) cb.checked = true;
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + players[i]));
+    checkboxRow.appendChild(label);
+  }
+  form.appendChild(checkboxRow);
+
+  // Provocateur dropdown (from tied players)
+  const provocateurOpts = [{ value: '', label: '— select —' }];
+  for (const idx of round.tiedPlayers) {
+    provocateurOpts.push({ value: String(idx), label: players[idx] });
+  }
+  const provRow = el('div', { className: 'form-row' });
+  provRow.appendChild(labeledSelect('Provocateur:', provocateurOpts, round.provocateur, v => onUpdate('provocateur', v)));
+
+  // Cards bid input
+  const bidLabel = el('label', { className: 'form-field' });
+  bidLabel.appendChild(document.createTextNode('Cards bid: '));
+  const bidInput = el('input', {
+    type: 'number',
+    min: '0',
+    className: 'cards-bid-input',
+    value: round.cardsBid !== '' ? String(round.cardsBid) : '',
+    onInput: (e) => onUpdate('cardsBid', e.target.value === '' ? '' : Number(e.target.value)),
+  });
+  bidLabel.appendChild(bidInput);
+  provRow.appendChild(bidLabel);
+
+  form.appendChild(provRow);
+  card.appendChild(form);
+
+  // Score table (bonus only)
+  const table = el('table', { className: 'score-table' });
+  const thead = el('thead');
+  const headRow = el('tr');
+  headRow.appendChild(el('th', { textContent: '' }));
+  for (const name of players) {
+    headRow.appendChild(el('th', { textContent: name }));
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = el('tbody');
+  const bonusRow = el('tr');
+  bonusRow.appendChild(el('td', { textContent: 'Bonus', className: 'row-label' }));
+  for (let p = 0; p < numPlayers; p++) {
+    const val = result.bonus[p];
+    bonusRow.appendChild(el('td', {
+      textContent: val !== 0 ? String(val) : '—',
+      className: val > 0 ? 'positive' : val < 0 ? 'negative' : '',
+    }));
+  }
+  tbody.appendChild(bonusRow);
+  table.appendChild(tbody);
+  card.appendChild(table);
+
+  // Validation errors
+  if (result.errors.length > 0) {
+    const errDiv = el('div', { className: 'validation-errors' });
+    for (const err of result.errors) {
+      errDiv.appendChild(el('div', { textContent: err, className: 'error-msg' }));
+    }
+    card.appendChild(errDiv);
+  }
+
+  container.appendChild(card);
+}
+
+// ── Subtotal Row ──
+
+export function renderSubtotalRow(container, players, subtotals) {
+  const table = el('table', { className: 'subtotal-table' });
+  const row = el('tr');
+  row.appendChild(el('td', { textContent: 'Subtotal', className: 'row-label subtotal-label' }));
+  for (let p = 0; p < players.length; p++) {
+    row.appendChild(el('td', { textContent: String(subtotals[p]), className: 'subtotal-val' }));
+  }
+  table.appendChild(row);
+  container.appendChild(table);
+}
+
+// ── Action Buttons ──
+
+export function renderButtons(container, { onNextRound, onNextStalemate }) {
+  const wrapper = el('div', { className: 'action-buttons' });
+  wrapper.appendChild(el('button', {
+    textContent: 'Next Round',
+    className: 'btn btn-primary',
+    onClick: onNextRound,
+  }));
+  wrapper.appendChild(el('button', {
+    textContent: 'Next Round (Stalemate)',
+    className: 'btn btn-primary',
+    onClick: onNextStalemate,
+  }));
+  container.appendChild(wrapper);
+}
+
+// ── Helpers ──
+
+function labeledSelect(labelText, options, selectedValue, onChange) {
+  const wrapper = el('label', { className: 'form-field' });
+  wrapper.appendChild(document.createTextNode(labelText + ' '));
+  wrapper.appendChild(createSelect(options, selectedValue, (e) => onChange(e.target.value)));
+  return wrapper;
+}

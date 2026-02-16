@@ -1,0 +1,373 @@
+/* ── CSS Variables ── */
+:root {
+  --bg: #f5f5f5;
+  --card-bg: #ffffff;
+  --text: #222;
+  --text-muted: #666;
+  --border: #ddd;
+  --shadow: rgba(0, 0, 0, 0.08);
+  --accent: #5ba3d9;
+  --accent-hover: #4a8fc2;
+  --positive: #2e7d32;
+  --negative: #c62828;
+  --error-bg: #fff3f3;
+  --banner-bg: #333;
+  --subtotal-bg: #e8f0fe;
+  --row-alt: #fafafa;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ── Banner ── */
+.banner {
+  background: var(--banner-bg);
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 20px;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.banner-logo {
+  height: 48px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.banner-dragons {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 1;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+/* ── Main Container ── */
+#app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+/* ── Player Setup ── */
+.player-setup {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  padding: 24px;
+  max-width: 400px;
+  margin: 40px auto;
+}
+
+.player-setup h2 {
+  margin: 0 0 16px;
+  font-size: 1.4rem;
+}
+
+.player-setup > label {
+  display: block;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.player-setup select {
+  margin-left: 8px;
+}
+
+.player-fields {
+  margin-bottom: 16px;
+}
+
+.player-name-row {
+  margin-bottom: 8px;
+}
+
+.player-name-input {
+  width: 180px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+/* ── Buttons ── */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-reset {
+  background: #eee;
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  float: right;
+  margin-bottom: 12px;
+}
+
+.btn-reset:hover {
+  background: #ddd;
+}
+
+.btn-trash {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  padding: 4px;
+  line-height: 1;
+}
+
+.btn-trash:hover {
+  opacity: 1;
+}
+
+/* ── Round Card ── */
+.round-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow);
+  padding: 20px;
+  margin-bottom: 8px;
+}
+
+.round-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.round-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+/* ── Round Form ── */
+.round-form {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 10px;
+}
+
+.form-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.form-field select,
+.form-field input {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.target-display {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: var(--subtotal-bg);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ── Checkboxes (stalemate) ── */
+.checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.cards-bid-input {
+  width: 60px;
+}
+
+/* ── Score Table ── */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.score-table th,
+.score-table td {
+  padding: 6px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.score-table th {
+  background: #f0f0f0;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.score-table tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+.row-label {
+  text-align: left !important;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pips-input {
+  width: 56px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.sum-row {
+  font-weight: 600;
+}
+
+.positive {
+  color: var(--positive);
+  font-weight: 600;
+}
+
+.negative {
+  color: var(--negative);
+  font-weight: 600;
+}
+
+/* ── Subtotal Table ── */
+.subtotal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  background: var(--subtotal-bg);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.subtotal-table td {
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.subtotal-label {
+  text-align: left !important;
+}
+
+/* ── Validation Errors ── */
+.validation-errors {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--error-bg);
+  border-radius: 4px;
+}
+
+.error-msg {
+  color: var(--negative);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* ── Action Buttons ── */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  clear: both;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .banner {
+    padding: 8px 12px;
+  }
+
+  .banner-logo {
+    height: 36px;
+  }
+
+  .banner-dragons {
+    height: 36px;
+  }
+
+  #app {
+    padding: 12px 8px 60px;
+  }
+
+  .round-card {
+    padding: 14px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .score-table th,
+  .score-table td {
+    padding: 4px 6px;
+    font-size: 0.8rem;
+  }
+
+  .pips-input {
+    width: 44px;
+  }
+}
