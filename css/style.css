@@ -46,13 +46,11 @@ body {
   flex-shrink: 0;
 }
 
-.banner-dragons {
-  height: 48px;
-  width: auto;
-  object-fit: contain;
-  flex-shrink: 1;
-  min-width: 0;
-  margin: 0 auto;
+.banner-title {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* ── Main Container ── */
@@ -363,10 +361,6 @@ body {
   }
 
   .banner-logo {
-    height: 36px;
-  }
-
-  .banner-dragons {
     height: 36px;
   }
 

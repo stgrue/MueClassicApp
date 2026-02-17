@@ -73,7 +73,7 @@ export function renderPlayerSetup(container, onStart) {
   const countLabel = el('label', { textContent: 'Number of players: ' });
   const countSelect = createSelect(
     [3, 4, 5, 6].map(n => ({ value: String(n), label: String(n) })),
-    '4',
+    '5',
     () => renderFields()
   );
   countLabel.appendChild(countSelect);
@@ -118,9 +118,9 @@ export function renderBanner() {
   if (!banner) return;
   banner.innerHTML = '';
   const logo = el('img', { src: 'img/mue-and-more_logo.svg', alt: 'Mü Logo', className: 'banner-logo' });
-  const dragons = el('img', { src: 'img/Dragons_Header_LONG-1500px.png', alt: 'Dragons', className: 'banner-dragons' });
+  const title = el('span', { className: 'banner-title' }, 'Scoring App');
   banner.appendChild(logo);
-  banner.appendChild(dragons);
+  banner.appendChild(title);
 }
 
 // ── Reset Button ──
