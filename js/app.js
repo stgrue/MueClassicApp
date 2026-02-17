@@ -208,9 +208,9 @@ function renderGame() {
     if (card) {
       const inputs = card.querySelectorAll('input, select');
       const target = inputs[focusInfo.inputIndex];
-      if (target) {
+      if (target && target.tagName !== 'SELECT') {
         target.focus();
-        if (target.type !== 'select-one' && focusInfo.selStart !== null) {
+        if (focusInfo.selStart !== null) {
           try { target.setSelectionRange(focusInfo.selStart, focusInfo.selEnd); } catch(e) {}
         }
       }
