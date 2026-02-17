@@ -177,13 +177,15 @@ export function computeNormalRoundScores(round, numPlayers) {
   const points = round.pips ? [...round.pips] : new Array(numPlayers).fill(0);
   const bonus = new Array(numPlayers).fill(0);
 
-  const { chief, vice, partner, chiefTrump, chiefBid } = round;
+  const { chief, vice, partner, chiefTrump, viceTrump, chiefBid } = round;
+
+  const viceIsNone = vice === 'none_player';
 
   // Validation
   if (chief === null || chief === undefined || chief === '') {
     errors.push('Chief must be selected.');
   }
-  if (numPlayers > 3 && (vice === null || vice === undefined || vice === '')) {
+  if (numPlayers > 3 && !viceIsNone && (vice === null || vice === undefined || vice === '')) {
     errors.push('Vice must be selected.');
   }
   if (numPlayers > 3 && (partner === null || partner === undefined || partner === '')) {
@@ -193,7 +195,7 @@ export function computeNormalRoundScores(round, numPlayers) {
   // Check distinctness
   const roles = [];
   if (chief !== null && chief !== undefined && chief !== '') roles.push({ name: 'Chief', val: Number(chief) });
-  if (numPlayers > 3 && vice !== null && vice !== undefined && vice !== '') roles.push({ name: 'Vice', val: Number(vice) });
+  if (numPlayers > 3 && !viceIsNone && vice !== null && vice !== undefined && vice !== '') roles.push({ name: 'Vice', val: Number(vice) });
   if (numPlayers > 3 && partner !== null && partner !== undefined && partner !== '') roles.push({ name: 'Partner', val: Number(partner) });
 
   const vals = roles.map(r => r.val);
@@ -204,6 +206,20 @@ export function computeNormalRoundScores(round, numPlayers) {
   if (!chiefTrump) {
     errors.push('Chief\'s trump must be selected.');
   }
+
+  // Vice's trump validation
+  if (numPlayers > 3) {
+    if (!viceTrump) {
+      errors.push('Vice\'s trump must be selected.');
+    } else if (viceIsNone && viceTrump !== 'none') {
+      errors.push('Vice\'s trump must be None when Vice is None.');
+    } else if (!viceIsNone && viceTrump === 'none') {
+      errors.push('Vice\'s trump can only be None when Vice is None.');
+    } else if (!viceIsNone && chiefTrump && viceTrump && chiefTrump === viceTrump) {
+      errors.push('Vice\'s trump must be different from Chief\'s trump.');
+    }
+  }
+
   if (chiefBid === null || chiefBid === undefined || chiefBid === '') {
     errors.push('Chief\'s bid must be selected.');
   }

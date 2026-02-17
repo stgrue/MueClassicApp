@@ -163,7 +163,7 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   form.appendChild(labeledSelect('Chief:', playerOptions(players), round.chief, v => onUpdate('chief', v)));
   if (!is3Player) {
     form.appendChild(labeledSelect('Partner:', playerOptions(players), round.partner, v => onUpdate('partner', v)));
-    form.appendChild(labeledSelect('Vice:', playerOptions(players), round.vice, v => onUpdate('vice', v)));
+    form.appendChild(labeledSelect('Vice:', playerOptions(players, true), round.vice, v => onUpdate('vice', v)));
   } else {
     form.appendChild(el('span'));
     form.appendChild(el('span'));
@@ -172,7 +172,11 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   // Row 2: Chief's Trump / Vice's Trump / (empty)
   form.appendChild(labeledSelect("Chief's Trump:", TRUMP_OPTIONS, round.chiefTrump, v => onUpdate('chiefTrump', v)));
   if (!is3Player) {
-    form.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+    if (round.vice === 'none_player') {
+      form.appendChild(labeledSelect("Vice's Trump:", [{ value: 'none', label: 'None' }], 'none', () => {}));
+    } else {
+      form.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+    }
   } else {
     form.appendChild(el('span'));
   }

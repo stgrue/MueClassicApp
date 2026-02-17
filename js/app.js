@@ -117,6 +117,15 @@ function updateRound(roundIndex, field, value) {
     round[field] = value;
   }
 
+  // Auto-sync Vice's trump when Vice changes
+  if (field === 'vice') {
+    if (value === 'none_player') {
+      round.viceTrump = 'none';
+    } else if (round.viceTrump === 'none') {
+      round.viceTrump = '';
+    }
+  }
+
   renderGame();
 }
 
