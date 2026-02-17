@@ -387,7 +387,7 @@ export function renderSubtotalRow(container, players, subtotals) {
   }
   table.appendChild(headerRow);
   const row = el('tr');
-  row.appendChild(el('td', { textContent: 'Subtotal', className: 'row-label subtotal-label' }));
+  row.appendChild(el('td', { textContent: 'Total', className: 'row-label subtotal-label' }));
   for (let p = 0; p < players.length; p++) {
     row.appendChild(el('td', { textContent: String(subtotals[p]), className: 'subtotal-val' }));
   }
@@ -400,12 +400,12 @@ export function renderSubtotalRow(container, players, subtotals) {
 export function renderButtons(container, { onNextRound, onNextStalemate }) {
   const wrapper = el('div', { className: 'action-buttons' });
   wrapper.appendChild(el('button', {
-    textContent: 'Next Round',
+    textContent: 'Add Round',
     className: 'btn btn-primary',
     onClick: onNextRound,
   }));
   wrapper.appendChild(el('button', {
-    textContent: 'Next Round (Stalemate)',
+    textContent: 'Add Round (Stalemate)',
     className: 'btn btn-primary',
     onClick: onNextStalemate,
   }));

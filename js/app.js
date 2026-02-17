@@ -188,9 +188,12 @@ function renderGame() {
       });
     }
 
-    // Subtotal row after each round
-    const subtotals = getSubtotals(i);
-    renderSubtotalRow(app, state.players, subtotals);
+  }
+
+  // Total row above buttons
+  if (state.rounds.length > 0) {
+    const totals = getSubtotals(state.rounds.length - 1);
+    renderSubtotalRow(app, state.players, totals);
   }
 
   renderButtons(app, {
