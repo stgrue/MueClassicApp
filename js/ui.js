@@ -126,12 +126,14 @@ export function renderBanner() {
 // ── Reset Button ──
 
 export function renderResetButton(container, onReset) {
+  const wrapper = el('div', { className: 'reset-wrapper' });
   const btn = el('button', {
     textContent: 'Reset Game',
     className: 'btn btn-reset',
     onClick: onReset,
   });
-  container.appendChild(btn);
+  wrapper.appendChild(btn);
+  container.appendChild(wrapper);
 }
 
 // ── Normal Round Card ──
@@ -147,10 +149,10 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1}` }));
   const trashBtn = el('button', {
     className: 'btn-trash',
-    innerHTML: '&#128465;',
     title: 'Delete round',
     onClick: onRemove,
   });
+  trashBtn.appendChild(el('img', { src: 'img/trash.svg', alt: 'Delete' }));
   header.appendChild(trashBtn);
   card.appendChild(header);
 
@@ -283,10 +285,10 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
   header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1} (Stalemate)` }));
   const trashBtn = el('button', {
     className: 'btn-trash',
-    innerHTML: '&#128465;',
     title: 'Delete round',
     onClick: onRemove,
   });
+  trashBtn.appendChild(el('img', { src: 'img/trash.svg', alt: 'Delete' }));
   header.appendChild(trashBtn);
   card.appendChild(header);
 
