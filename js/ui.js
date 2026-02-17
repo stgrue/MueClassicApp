@@ -117,7 +117,7 @@ export function renderBanner() {
   const banner = document.getElementById('banner');
   if (!banner) return;
   banner.innerHTML = '';
-  const logo = el('img', { src: 'img/mue-and-more_logo.svg', alt: 'Mü Logo', className: 'banner-logo' });
+  const logo = el('img', { src: 'img/mue-and-more_logo_placeholder.svg', alt: 'Mü Logo', className: 'banner-logo' });
   const title = el('span', { className: 'banner-title' }, 'Scoring App');
   banner.appendChild(logo);
   banner.appendChild(title);
