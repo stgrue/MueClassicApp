@@ -66,6 +66,21 @@ export function getRankAchieved(numPlayers, teamPoints) {
 }
 
 /**
+ * Compute the potential bonus on the line for the Chief's team,
+ * based solely on trump choice and bid (before knowing the outcome).
+ * @param {string} chiefTrumpChoice
+ * @param {number} chiefBid
+ * @returns {number|null} potential bonus, or null if inputs incomplete
+ */
+export function getPotentialBonus(chiefTrumpChoice, chiefBid) {
+  if (!chiefTrumpChoice || !chiefBid) return null;
+  const trumpCat = classifyTrump(chiefTrumpChoice);
+  const startRank = getBonusStartRank(trumpCat);
+  const bonusRank = Number(chiefBid) + startRank;
+  return Math.min(bonusRank * 10, 100);
+}
+
+/**
  * Starting rank for bonus calculation based on trump type.
  * "Color" → rank starts at 1, "1or7" → 2, "otherNumber" → 3, "none" → 4
  */

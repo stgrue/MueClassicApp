@@ -1,6 +1,6 @@
 // ui.js — DOM creation and rendering helpers for Mü Scoring App
 
-import { getTeamTarget, getMaxBid } from './scoring.js';
+import { getTeamTarget, getMaxBid, getPotentialBonus } from './scoring.js';
 
 const TRUMP_OPTIONS = [
   { value: '', label: '— select —' },
@@ -154,36 +154,43 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   header.appendChild(trashBtn);
   card.appendChild(header);
 
-  // Round info form
-  const form = el('div', { className: 'round-form' });
+  // Round info form (3-column grid)
+  const form = el('div', { className: 'round-form round-grid' });
 
-  // Row 1: Chief + Vice
-  const row1 = el('div', { className: 'form-row' });
-  row1.appendChild(labeledSelect('Chief:', playerOptions(players), round.chief, v => onUpdate('chief', v)));
+  // Row 1: Chief / Partner / Vice
+  form.appendChild(labeledSelect('Chief:', playerOptions(players), round.chief, v => onUpdate('chief', v)));
   if (!is3Player) {
-    row1.appendChild(labeledSelect('Vice:', playerOptions(players), round.vice, v => onUpdate('vice', v)));
+    form.appendChild(labeledSelect('Partner:', playerOptions(players), round.partner, v => onUpdate('partner', v)));
+    form.appendChild(labeledSelect('Vice:', playerOptions(players), round.vice, v => onUpdate('vice', v)));
+  } else {
+    form.appendChild(el('span'));
+    form.appendChild(el('span'));
   }
-  form.appendChild(row1);
 
-  // Row 2: Partner + Vice's trump
-  const row2 = el('div', { className: 'form-row' });
+  // Row 2: Chief's Trump / Vice's Trump / (empty)
+  form.appendChild(labeledSelect("Chief's Trump:", TRUMP_OPTIONS, round.chiefTrump, v => onUpdate('chiefTrump', v)));
   if (!is3Player) {
-    row2.appendChild(labeledSelect("Chief's Partner:", playerOptions(players), round.partner, v => onUpdate('partner', v)));
-    row2.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+    form.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+  } else {
+    form.appendChild(el('span'));
   }
-  form.appendChild(row2);
+  form.appendChild(el('span'));
 
-  // Row 3: Chief's trump + bid + target
-  const row3 = el('div', { className: 'form-row' });
-  row3.appendChild(labeledSelect("Chief's Trump:", TRUMP_OPTIONS, round.chiefTrump, v => onUpdate('chiefTrump', v)));
-  row3.appendChild(labeledSelect('Bid:', bidOptions(numPlayers), round.chiefBid, v => onUpdate('chiefBid', v)));
+  // Row 3: Bid / Target / Bonus
+  form.appendChild(labeledSelect('Bid:', bidOptions(numPlayers), round.chiefBid, v => onUpdate('chiefBid', v)));
 
   const targetSpan = el('span', {
-    className: 'target-display',
+    className: 'info-display',
     textContent: `Target: ${result.target !== null && result.target !== undefined ? result.target : '—'}`,
   });
-  row3.appendChild(targetSpan);
-  form.appendChild(row3);
+  form.appendChild(targetSpan);
+
+  const potentialBonus = getPotentialBonus(round.chiefTrump, round.chiefBid);
+  const bonusSpan = el('span', {
+    className: 'info-display',
+    textContent: `Bonus: ${potentialBonus !== null ? potentialBonus : '—'}`,
+  });
+  form.appendChild(bonusSpan);
 
   card.appendChild(form);
 
@@ -208,10 +215,20 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   for (let p = 0; p < numPlayers; p++) {
     const td = el('td');
     const input = el('input', {
-      type: 'number',
+      type: 'text',
+      inputMode: 'numeric',
+      pattern: '-?[0-9]*',
       className: 'pips-input',
       value: round.pips[p] !== '' ? String(round.pips[p]) : '',
-      onInput: (e) => onUpdate(`pips.${p}`, e.target.value === '' ? '' : Number(e.target.value)),
+      onInput: (e) => {
+        const raw = e.target.value;
+        if (raw === '' || raw === '-') {
+          onUpdate(`pips.${p}`, raw === '-' ? '-' : '');
+        } else {
+          const num = Number(raw);
+          if (!isNaN(num)) onUpdate(`pips.${p}`, num);
+        }
+      },
     });
     td.appendChild(input);
     pointsRow.appendChild(td);
@@ -306,18 +323,12 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
   const provRow = el('div', { className: 'form-row' });
   provRow.appendChild(labeledSelect('Provocateur:', provocateurOpts, round.provocateur, v => onUpdate('provocateur', v)));
 
-  // Cards bid input
-  const bidLabel = el('label', { className: 'form-field' });
-  bidLabel.appendChild(document.createTextNode('Cards bid: '));
-  const bidInput = el('input', {
-    type: 'number',
-    min: '0',
-    className: 'cards-bid-input',
-    value: round.cardsBid !== '' ? String(round.cardsBid) : '',
-    onInput: (e) => onUpdate('cardsBid', e.target.value === '' ? '' : Number(e.target.value)),
-  });
-  bidLabel.appendChild(bidInput);
-  provRow.appendChild(bidLabel);
+  // Cards bid dropdown
+  const cardsBidOpts = [{ value: '', label: '—' }];
+  for (let i = 0; i <= 15; i++) {
+    cardsBidOpts.push({ value: String(i), label: String(i) });
+  }
+  provRow.appendChild(labeledSelect('Cards bid:', cardsBidOpts, String(round.cardsBid), v => onUpdate('cardsBid', v === '' ? '' : Number(v))));
 
   form.appendChild(provRow);
   card.appendChild(form);

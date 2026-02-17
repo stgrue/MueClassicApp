@@ -177,6 +177,13 @@ body {
   margin-bottom: 16px;
 }
 
+.round-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px 16px;
+  align-items: center;
+}
+
 .form-row {
   display: flex;
   flex-wrap: wrap;
@@ -206,7 +213,7 @@ body {
   font-size: 0.9rem;
 }
 
-.target-display {
+.info-display {
   display: inline-flex;
   align-items: center;
   font-weight: 600;
@@ -360,6 +367,10 @@ body {
 
   .round-card {
     padding: 14px;
+  }
+
+  .round-grid {
+    grid-template-columns: 1fr;
   }
 
   .form-row {
