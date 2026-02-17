@@ -1,6 +1,6 @@
 # Mü Classic – Scoring App
 
-A browser-based scoring companion for the trick-taking game [Mü](https://boardgamegeek.com/boardgame/152/mu-and-more) (3–6 players).
+A browser-based scoring companion for the trick-taking game [Mü](https://boardgamegeek.com/boardgame/152/mu-and-more) (3–6 players) by Doris Matthäus and Frank Nestel.
 
 Mü is an excellent game, but its intricate scoring rules can sometimes be intimidating to new players. This app is an attempt to alleviate that. Enter player names, then record each round's auction results and card points — the app automatically computes bonuses, penalties, and running totals. All possible edge cases should be handled, but if not, please provide feedback (e.g., by opening an issue).
 
