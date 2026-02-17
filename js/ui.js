@@ -363,6 +363,12 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
 
 export function renderSubtotalRow(container, players, subtotals) {
   const table = el('table', { className: 'subtotal-table' });
+  const headerRow = el('tr');
+  headerRow.appendChild(el('td', { className: 'row-label' }));
+  for (let p = 0; p < players.length; p++) {
+    headerRow.appendChild(el('td', { textContent: players[p], className: 'subtotal-name' }));
+  }
+  table.appendChild(headerRow);
   const row = el('tr');
   row.appendChild(el('td', { textContent: 'Subtotal', className: 'row-label subtotal-label' }));
   for (let p = 0; p < players.length; p++) {

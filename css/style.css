@@ -311,6 +311,12 @@ body {
   text-align: left !important;
 }
 
+.subtotal-name {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: #555;
+}
+
 /* ── Validation Errors ── */
 .validation-errors {
   margin-top: 10px;
