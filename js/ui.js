@@ -119,8 +119,17 @@ export function renderBanner() {
   banner.innerHTML = '';
   const logo = el('img', { src: 'img/mue-and-more_logo_placeholder.svg', alt: 'Mü Logo', className: 'banner-logo' });
   const title = el('span', { className: 'banner-title' }, 'Scoring App');
+  const ghLink = el('a', {
+    href: 'https://github.com/stgrue/MueClassicApp',
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    className: 'banner-github',
+    title: 'View on GitHub',
+  });
+  ghLink.appendChild(el('img', { src: 'img/github-mark.svg', alt: 'GitHub', width: 28, height: 28 }));
   banner.appendChild(logo);
   banner.appendChild(title);
+  banner.appendChild(ghLink);
 }
 
 // ── Reset Button ──
