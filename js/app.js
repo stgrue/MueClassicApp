@@ -9,6 +9,7 @@ import {
   renderSubtotalRow,
   renderButtons,
   renderResetButton,
+  generatePrintHTML,
 } from './ui.js';
 
 const state = {
@@ -142,6 +143,15 @@ function resetGame() {
   init();
 }
 
+function printGame() {
+  if (state.rounds.length === 0) return;
+  const html = generatePrintHTML(state.players, state.rounds, computeRound);
+  const w = window.open('', '_blank');
+  if (!w) { alert('Please allow popups to print.'); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
 function startGame(playerNames) {
   state.players = playerNames;
   state.rounds = [];
@@ -168,7 +178,7 @@ function renderGame() {
 
   app.innerHTML = '';
 
-  renderResetButton(app, resetGame);
+  renderResetButton(app, resetGame, printGame);
 
   const n = getNumPlayers();
 

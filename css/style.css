@@ -141,6 +141,7 @@ body {
 .reset-wrapper {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
@@ -152,6 +153,17 @@ body {
 }
 
 .btn-reset:hover {
+  background: #ddd;
+}
+
+.btn-print {
+  background: #eee;
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 6px 14px;
+}
+
+.btn-print:hover {
   background: #ddd;
 }
 
