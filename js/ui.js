@@ -406,18 +406,19 @@ export function renderSubtotalRow(container, players, subtotals) {
 
 // ── Action Buttons ──
 
-export function renderButtons(container, { onNextRound, onNextStalemate }) {
+export function renderButtons(container, { onNextRound, onNextStalemate, disabled }) {
   const wrapper = el('div', { className: 'action-buttons' });
-  wrapper.appendChild(el('button', {
-    textContent: 'Add Round',
-    className: 'btn btn-primary',
-    onClick: onNextRound,
-  }));
-  wrapper.appendChild(el('button', {
-    textContent: 'Add Round (Stalemate)',
-    className: 'btn btn-primary',
-    onClick: onNextStalemate,
-  }));
+  const attrs = disabled
+    ? { className: 'btn btn-primary', disabled: 'true', title: 'Please fix incomplete or incorrect rounds first' }
+    : { className: 'btn btn-primary' };
+  const roundBtn = el('button', { textContent: 'Add Round', ...attrs });
+  const stalemateBtn = el('button', { textContent: 'Add Round (Stalemate)', ...attrs });
+  if (!disabled) {
+    roundBtn.addEventListener('click', onNextRound);
+    stalemateBtn.addEventListener('click', onNextStalemate);
+  }
+  wrapper.appendChild(roundBtn);
+  wrapper.appendChild(stalemateBtn);
   container.appendChild(wrapper);
 }
 

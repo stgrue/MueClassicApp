@@ -196,9 +196,13 @@ function renderGame() {
     renderSubtotalRow(app, state.players, totals);
   }
 
+  // Check if any existing round has validation errors
+  const hasErrors = state.rounds.some(r => computeRound(r).errors.length > 0);
+
   renderButtons(app, {
     onNextRound: () => addRound('normal'),
     onNextStalemate: () => addRound('stalemate'),
+    disabled: hasErrors,
   });
 
   // Restore focus after re-render
@@ -228,6 +232,13 @@ function init() {
     renderGame();
   }
 }
+
+// Warn before leaving/reloading if game data has been entered
+window.addEventListener('beforeunload', (e) => {
+  if (state.rounds.length > 0) {
+    e.preventDefault();
+  }
+});
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
