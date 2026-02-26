@@ -9,8 +9,8 @@ import {
   renderSubtotalRow,
   renderButtons,
   renderResetButton,
-  generatePrintHTML,
 } from './ui.js';
+import { generatePrintHTML } from './printing.js';
 
 const state = {
   players: [],
