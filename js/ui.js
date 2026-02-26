@@ -1,26 +1,29 @@
 // ui.js — DOM creation and rendering helpers for Mü Scoring App
 
 import { getTeamTarget, getMaxBid, getPotentialBonus } from './scoring.js';
+import { t, getLang } from './i18n.js';
 
-const TRUMP_OPTIONS = [
-  { value: '', label: '— select —' },
-  { value: 'red', label: 'Red' },
-  { value: 'blue', label: 'Blue' },
-  { value: 'purple', label: 'Purple' },
-  { value: 'yellow', label: 'Yellow' },
-  { value: 'green', label: 'Green' },
-  { value: '0', label: '0' },
-  { value: '1', label: '1' },
-  { value: '2', label: '2' },
-  { value: '3', label: '3' },
-  { value: '4', label: '4' },
-  { value: '5', label: '5' },
-  { value: '6', label: '6' },
-  { value: '7', label: '7' },
-  { value: '8', label: '8' },
-  { value: '9', label: '9' },
-  { value: 'none', label: 'None' },
-];
+function trumpOptions() {
+  return [
+    { value: '', label: t('select_placeholder') },
+    { value: 'red', label: t('trump_red') },
+    { value: 'blue', label: t('trump_blue') },
+    { value: 'purple', label: t('trump_purple') },
+    { value: 'yellow', label: t('trump_yellow') },
+    { value: 'green', label: t('trump_green') },
+    { value: '0', label: '0' },
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+    { value: '5', label: '5' },
+    { value: '6', label: '6' },
+    { value: '7', label: '7' },
+    { value: '8', label: '8' },
+    { value: '9', label: '9' },
+    { value: 'none', label: t('trump_none') },
+  ];
+}
 
 function el(tag, attrs = {}, children = []) {
   const elem = document.createElement(tag);
@@ -49,15 +52,15 @@ function createSelect(options, selectedValue, onChange) {
 }
 
 function playerOptions(players, includeNone = false) {
-  const opts = [{ value: '', label: '— select —' }];
+  const opts = [{ value: '', label: t('select_placeholder') }];
   players.forEach((name, i) => opts.push({ value: String(i), label: name }));
-  if (includeNone) opts.push({ value: 'none_player', label: 'None' });
+  if (includeNone) opts.push({ value: 'none_player', label: t('none') });
   return opts;
 }
 
 function bidOptions(numPlayers) {
   const max = getMaxBid(numPlayers);
-  const opts = [{ value: '', label: '—' }];
+  const opts = [{ value: '', label: t('dash_placeholder') }];
   for (let i = 1; i <= max; i++) opts.push({ value: String(i), label: String(i) });
   return opts;
 }
@@ -67,10 +70,10 @@ function bidOptions(numPlayers) {
 export function renderPlayerSetup(container, onStart) {
   const wrapper = el('div', { className: 'player-setup' });
 
-  const title = el('h2', { textContent: 'New Game' });
+  const title = el('h2', { textContent: t('new_game') });
   wrapper.appendChild(title);
 
-  const countLabel = el('label', { textContent: 'Number of players: ' });
+  const countLabel = el('label', { textContent: t('num_players') + ' ' });
   const countSelect = createSelect(
     [3, 4, 5, 6].map(n => ({ value: String(n), label: String(n) })),
     '5',
@@ -87,8 +90,8 @@ export function renderPlayerSetup(container, onStart) {
     fieldsDiv.innerHTML = '';
     for (let i = 0; i < count; i++) {
       const row = el('div', { className: 'player-name-row' });
-      const label = el('label', { textContent: `Player ${i + 1}: ` });
-      const input = el('input', { type: 'text', placeholder: `Player ${i + 1}`, className: 'player-name-input' });
+      const label = el('label', { textContent: t('player_n', i + 1) + ' ' });
+      const input = el('input', { type: 'text', placeholder: t('player_n_placeholder', i + 1), className: 'player-name-input' });
       label.appendChild(input);
       row.appendChild(label);
       fieldsDiv.appendChild(row);
@@ -98,11 +101,11 @@ export function renderPlayerSetup(container, onStart) {
   renderFields();
 
   const startBtn = el('button', {
-    textContent: 'Start Game',
+    textContent: t('start_game'),
     className: 'btn btn-primary',
     onClick: () => {
       const inputs = fieldsDiv.querySelectorAll('.player-name-input');
-      const names = Array.from(inputs).map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
+      const names = Array.from(inputs).map((inp, i) => inp.value.trim() || t('player_n_default', i + 1));
       onStart(names);
     },
   });
@@ -113,12 +116,12 @@ export function renderPlayerSetup(container, onStart) {
 
 // ── Banner ──
 
-export function renderBanner() {
+export function renderBanner(onLangChange) {
   const banner = document.getElementById('banner');
   if (!banner) return;
   banner.innerHTML = '';
   const logo = el('img', { src: 'img/mue-and-more_logo_placeholder.svg', alt: 'Mü Logo', className: 'banner-logo' });
-  const title = el('span', { className: 'banner-title' }, 'Scoring App');
+  const title = el('span', { className: 'banner-title' }, t('scoring_app'));
   const ghLink = el('a', {
     href: 'https://github.com/stgrue/MueClassicApp',
     target: '_blank',
@@ -127,9 +130,21 @@ export function renderBanner() {
     title: 'View on GitHub',
   });
   ghLink.appendChild(el('img', { src: 'img/github-mark.svg', alt: 'GitHub', width: 28, height: 28 }));
+
+  const langSelect = createSelect(
+    [
+      { value: 'en', label: 'EN' },
+      { value: 'de', label: 'DE' },
+    ],
+    getLang(),
+    (e) => { if (onLangChange) onLangChange(e.target.value); }
+  );
+  langSelect.className = 'banner-lang';
+
   banner.appendChild(logo);
   banner.appendChild(title);
   banner.appendChild(ghLink);
+  banner.appendChild(langSelect);
 }
 
 // ── Reset Button ──
@@ -138,13 +153,13 @@ export function renderResetButton(container, onReset, onPrint) {
   const wrapper = el('div', { className: 'reset-wrapper' });
   if (onPrint) {
     wrapper.appendChild(el('button', {
-      textContent: 'Print version',
+      textContent: t('print_version'),
       className: 'btn btn-print',
       onClick: onPrint,
     }));
   }
   const btn = el('button', {
-    textContent: 'Reset Game',
+    textContent: t('reset_game'),
     className: 'btn btn-reset',
     onClick: onReset,
   });
@@ -162,10 +177,10 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
 
   // Header
   const header = el('div', { className: 'round-header' });
-  header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1}` }));
+  header.appendChild(el('h3', { textContent: t('round_n', roundIndex + 1) }));
   const trashBtn = el('button', {
     className: 'btn-trash',
-    title: 'Delete round',
+    title: t('delete_round'),
     onClick: onRemove,
   });
   trashBtn.appendChild(el('img', { src: 'img/trash.svg', alt: 'Delete' }));
@@ -176,22 +191,22 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   const form = el('div', { className: 'round-form round-grid' });
 
   // Row 1: Chief / Partner / Vice
-  form.appendChild(labeledSelect('Chief:', playerOptions(players), round.chief, v => onUpdate('chief', v)));
+  form.appendChild(labeledSelect(t('chief'), playerOptions(players), round.chief, v => onUpdate('chief', v)));
   if (!is3Player) {
-    form.appendChild(labeledSelect('Partner:', playerOptions(players), round.partner, v => onUpdate('partner', v)));
-    form.appendChild(labeledSelect('Vice:', playerOptions(players, true), round.vice, v => onUpdate('vice', v)));
+    form.appendChild(labeledSelect(t('partner'), playerOptions(players), round.partner, v => onUpdate('partner', v)));
+    form.appendChild(labeledSelect(t('vice'), playerOptions(players, true), round.vice, v => onUpdate('vice', v)));
   } else {
     form.appendChild(el('span'));
     form.appendChild(el('span'));
   }
 
   // Row 2: Chief's Trump / Vice's Trump / (empty)
-  form.appendChild(labeledSelect("Chief's Trump:", TRUMP_OPTIONS, round.chiefTrump, v => onUpdate('chiefTrump', v)));
+  form.appendChild(labeledSelect(t('chief_trump'), trumpOptions(), round.chiefTrump, v => onUpdate('chiefTrump', v)));
   if (!is3Player) {
     if (round.vice === 'none_player') {
-      form.appendChild(labeledSelect("Vice's Trump:", [{ value: 'none', label: 'None' }], 'none', () => {}));
+      form.appendChild(labeledSelect(t('vice_trump'), [{ value: 'none', label: t('trump_none') }], 'none', () => {}));
     } else {
-      form.appendChild(labeledSelect("Vice's Trump:", TRUMP_OPTIONS, round.viceTrump, v => onUpdate('viceTrump', v)));
+      form.appendChild(labeledSelect(t('vice_trump'), trumpOptions(), round.viceTrump, v => onUpdate('viceTrump', v)));
     }
   } else {
     form.appendChild(el('span'));
@@ -199,18 +214,18 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   form.appendChild(el('span'));
 
   // Row 3: Bid / Target / Bonus
-  form.appendChild(labeledSelect('Bid:', bidOptions(numPlayers), round.chiefBid, v => onUpdate('chiefBid', v)));
+  form.appendChild(labeledSelect(t('bid'), bidOptions(numPlayers), round.chiefBid, v => onUpdate('chiefBid', v)));
 
   const targetSpan = el('span', {
     className: 'info-display',
-    textContent: `Target: ${result.target !== null && result.target !== undefined ? result.target : '—'}`,
+    textContent: `${t('target')} ${result.target !== null && result.target !== undefined ? result.target : '\u2014'}`,
   });
   form.appendChild(targetSpan);
 
   const potentialBonus = getPotentialBonus(round.chiefTrump, round.chiefBid);
   const bonusSpan = el('span', {
     className: 'info-display',
-    textContent: `Bonus: ${potentialBonus !== null ? potentialBonus : '—'}`,
+    textContent: `${t('bonus')} ${potentialBonus !== null ? potentialBonus : '\u2014'}`,
   });
   form.appendChild(bonusSpan);
 
@@ -233,7 +248,7 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
 
   // Points row (editable)
   const pointsRow = el('tr');
-  pointsRow.appendChild(el('td', { textContent: 'Points', className: 'row-label' }));
+  pointsRow.appendChild(el('td', { textContent: t('points'), className: 'row-label' }));
   for (let p = 0; p < numPlayers; p++) {
     const td = el('td');
     const input = el('input', {
@@ -259,11 +274,11 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
 
   // Bonus row (computed)
   const bonusRow = el('tr');
-  bonusRow.appendChild(el('td', { textContent: 'Bonus', className: 'row-label' }));
+  bonusRow.appendChild(el('td', { textContent: t('bonus_row'), className: 'row-label' }));
   for (let p = 0; p < numPlayers; p++) {
     const val = result.bonus[p];
     const td = el('td', {
-      textContent: val !== 0 ? String(val) : '—',
+      textContent: val !== 0 ? String(val) : '\u2014',
       className: val > 0 ? 'positive' : val < 0 ? 'negative' : '',
     });
     bonusRow.appendChild(td);
@@ -272,7 +287,7 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
 
   // Sum row (computed)
   const sumRow = el('tr', { className: 'sum-row' });
-  sumRow.appendChild(el('td', { textContent: 'Sum', className: 'row-label' }));
+  sumRow.appendChild(el('td', { textContent: t('sum'), className: 'row-label' }));
   for (let p = 0; p < numPlayers; p++) {
     const val = result.sum[p];
     sumRow.appendChild(el('td', { textContent: String(val) }));
@@ -286,7 +301,7 @@ export function renderRoundCard(container, roundIndex, round, players, result, {
   if (result.errors.length > 0) {
     const errDiv = el('div', { className: 'validation-errors' });
     for (const err of result.errors) {
-      errDiv.appendChild(el('div', { textContent: err, className: 'error-msg' }));
+      errDiv.appendChild(el('div', { textContent: t(err.key, ...err.args), className: 'error-msg' }));
     }
     card.appendChild(errDiv);
   }
@@ -302,10 +317,10 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
 
   // Header
   const header = el('div', { className: 'round-header' });
-  header.appendChild(el('h3', { textContent: `Round ${roundIndex + 1} (Stalemate)` }));
+  header.appendChild(el('h3', { textContent: t('round_n_stalemate', roundIndex + 1) }));
   const trashBtn = el('button', {
     className: 'btn-trash',
-    title: 'Delete round',
+    title: t('delete_round'),
     onClick: onRemove,
   });
   trashBtn.appendChild(el('img', { src: 'img/trash.svg', alt: 'Delete' }));
@@ -315,7 +330,7 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
   // Tied players checkboxes
   const form = el('div', { className: 'round-form' });
 
-  const tiedLabel = el('div', { className: 'form-label', textContent: 'Tied players:' });
+  const tiedLabel = el('div', { className: 'form-label', textContent: t('tied_players') });
   form.appendChild(tiedLabel);
 
   const checkboxRow = el('div', { className: 'checkbox-row' });
@@ -338,19 +353,19 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
   form.appendChild(checkboxRow);
 
   // Provocateur dropdown (from tied players)
-  const provocateurOpts = [{ value: '', label: '— select —' }];
+  const provocateurOpts = [{ value: '', label: t('select_placeholder') }];
   for (const idx of round.tiedPlayers) {
     provocateurOpts.push({ value: String(idx), label: players[idx] });
   }
   const provRow = el('div', { className: 'form-row' });
-  provRow.appendChild(labeledSelect('Provocateur:', provocateurOpts, round.provocateur, v => onUpdate('provocateur', v)));
+  provRow.appendChild(labeledSelect(t('provocateur'), provocateurOpts, round.provocateur, v => onUpdate('provocateur', v)));
 
   // Cards bid dropdown
-  const cardsBidOpts = [{ value: '', label: '—' }];
+  const cardsBidOpts = [{ value: '', label: t('dash_placeholder') }];
   for (let i = 0; i <= 15; i++) {
     cardsBidOpts.push({ value: String(i), label: String(i) });
   }
-  provRow.appendChild(labeledSelect('Cards bid:', cardsBidOpts, String(round.cardsBid), v => onUpdate('cardsBid', v === '' ? '' : Number(v))));
+  provRow.appendChild(labeledSelect(t('cards_bid'), cardsBidOpts, String(round.cardsBid), v => onUpdate('cardsBid', v === '' ? '' : Number(v))));
 
   form.appendChild(provRow);
   card.appendChild(form);
@@ -368,11 +383,11 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
 
   const tbody = el('tbody');
   const bonusRow = el('tr');
-  bonusRow.appendChild(el('td', { textContent: 'Sum', className: 'row-label' }));
+  bonusRow.appendChild(el('td', { textContent: t('sum'), className: 'row-label' }));
   for (let p = 0; p < numPlayers; p++) {
     const val = result.bonus[p];
     bonusRow.appendChild(el('td', {
-      textContent: val !== 0 ? String(val) : '—',
+      textContent: val !== 0 ? String(val) : '\u2014',
       className: val > 0 ? 'positive' : val < 0 ? 'negative' : '',
     }));
   }
@@ -384,7 +399,7 @@ export function renderStalemateCard(container, roundIndex, round, players, resul
   if (result.errors.length > 0) {
     const errDiv = el('div', { className: 'validation-errors' });
     for (const err of result.errors) {
-      errDiv.appendChild(el('div', { textContent: err, className: 'error-msg' }));
+      errDiv.appendChild(el('div', { textContent: t(err.key, ...err.args), className: 'error-msg' }));
     }
     card.appendChild(errDiv);
   }
@@ -403,7 +418,7 @@ export function renderSubtotalRow(container, players, subtotals) {
   }
   table.appendChild(headerRow);
   const row = el('tr');
-  row.appendChild(el('td', { textContent: 'Total', className: 'row-label subtotal-label' }));
+  row.appendChild(el('td', { textContent: t('total'), className: 'row-label subtotal-label' }));
   for (let p = 0; p < players.length; p++) {
     row.appendChild(el('td', { textContent: String(subtotals[p]), className: 'subtotal-val' }));
   }
@@ -416,10 +431,10 @@ export function renderSubtotalRow(container, players, subtotals) {
 export function renderButtons(container, { onNextRound, onNextStalemate, disabled }) {
   const wrapper = el('div', { className: 'action-buttons' });
   const attrs = disabled
-    ? { className: 'btn btn-primary', disabled: 'true', title: 'Please fix incomplete or incorrect rounds first' }
+    ? { className: 'btn btn-primary', disabled: 'true', title: t('btn_disabled_title') }
     : { className: 'btn btn-primary' };
-  const roundBtn = el('button', { textContent: 'Add Round', ...attrs });
-  const stalemateBtn = el('button', { textContent: 'Add Round (Stalemate)', ...attrs });
+  const roundBtn = el('button', { textContent: t('add_round'), ...attrs });
+  const stalemateBtn = el('button', { textContent: t('add_round_stalemate'), ...attrs });
   if (!disabled) {
     roundBtn.addEventListener('click', onNextRound);
     stalemateBtn.addEventListener('click', onNextStalemate);
@@ -437,4 +452,3 @@ function labeledSelect(labelText, options, selectedValue, onChange) {
   wrapper.appendChild(createSelect(options, selectedValue, (e) => onChange(e.target.value)));
   return wrapper;
 }
-

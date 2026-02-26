@@ -66,6 +66,17 @@ body {
   white-space: nowrap;
 }
 
+.banner-lang {
+  flex-shrink: 0;
+  padding: 4px 6px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background: #444;
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
 /* ── Main Container ── */
 #app {
   max-width: 900px;

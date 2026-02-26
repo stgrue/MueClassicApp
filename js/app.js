@@ -11,6 +11,7 @@ import {
   renderResetButton,
 } from './ui.js';
 import { generatePrintHTML } from './printing.js';
+import { initLang, t, setLang } from './i18n.js';
 
 const state = {
   players: [],
@@ -43,18 +44,18 @@ function computeRound(round) {
   if (round.type === 'stalemate') {
     const errors = [];
     if (!round.tiedPlayers || round.tiedPlayers.length < 2) {
-      errors.push('At least two tied players must be selected.');
+      errors.push({ key: 'err_tied_min', args: [] });
     }
     if (round.provocateur === null || round.provocateur === undefined || round.provocateur === '') {
-      errors.push('Provocateur must be selected.');
+      errors.push({ key: 'err_provocateur_required', args: [] });
     }
     if (round.tiedPlayers && round.provocateur !== '' && round.provocateur !== null && round.provocateur !== undefined) {
       if (!round.tiedPlayers.includes(Number(round.provocateur))) {
-        errors.push('Provocateur must be one of the tied players.');
+        errors.push({ key: 'err_provocateur_not_tied', args: [] });
       }
     }
     if (round.cardsBid === null || round.cardsBid === undefined || round.cardsBid === '' || Number(round.cardsBid) < 0) {
-      errors.push('Number of cards bid must be entered.');
+      errors.push({ key: 'err_cards_bid_required', args: [] });
     }
 
     if (errors.length > 0) {
@@ -131,13 +132,13 @@ function updateRound(roundIndex, field, value) {
 }
 
 function removeRound(roundIndex) {
-  if (!confirm(`Delete Round ${roundIndex + 1}? This cannot be undone.`)) return;
+  if (!confirm(t('confirm_delete_round', roundIndex + 1))) return;
   state.rounds.splice(roundIndex, 1);
   renderGame();
 }
 
 function resetGame() {
-  if (!confirm('Reset the entire game? All scores will be lost.')) return;
+  if (!confirm(t('confirm_reset'))) return;
   state.players = [];
   state.rounds = [];
   init();
@@ -147,7 +148,7 @@ function printGame() {
   if (state.rounds.length === 0) return;
   const html = generatePrintHTML(state.players, state.rounds, computeRound);
   const w = window.open('', '_blank');
-  if (!w) { alert('Please allow popups to print.'); return; }
+  if (!w) { alert(t('alert_popup_blocked')); return; }
   w.document.write(html);
   w.document.close();
 }
@@ -250,8 +251,15 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
+function onLangChange(code) {
+  setLang(code);
+  renderBanner(onLangChange);
+  init();
+}
+
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-  renderBanner();
+  initLang();
+  renderBanner(onLangChange);
   init();
 });

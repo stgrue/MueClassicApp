@@ -183,13 +183,13 @@ export function computeNormalRoundScores(round, numPlayers) {
 
   // Validation
   if (chief === null || chief === undefined || chief === '') {
-    errors.push('Chief must be selected.');
+    errors.push({ key: 'err_chief_required', args: [] });
   }
   if (numPlayers > 3 && !viceIsNone && (vice === null || vice === undefined || vice === '')) {
-    errors.push('Vice must be selected.');
+    errors.push({ key: 'err_vice_required', args: [] });
   }
   if (numPlayers > 3 && (partner === null || partner === undefined || partner === '')) {
-    errors.push('Partner must be selected.');
+    errors.push({ key: 'err_partner_required', args: [] });
   }
 
   // Check distinctness
@@ -200,34 +200,34 @@ export function computeNormalRoundScores(round, numPlayers) {
 
   const vals = roles.map(r => r.val);
   if (new Set(vals).size !== vals.length && vals.length > 1) {
-    errors.push('Chief, Vice, and Partner must be different players.');
+    errors.push({ key: 'err_roles_distinct', args: [] });
   }
 
   if (!chiefTrump) {
-    errors.push('Chief\'s trump must be selected.');
+    errors.push({ key: 'err_chief_trump_required', args: [] });
   }
 
   // Vice's trump validation
   if (numPlayers > 3) {
     if (!viceTrump) {
-      errors.push('Vice\'s trump must be selected.');
+      errors.push({ key: 'err_vice_trump_required', args: [] });
     } else if (viceIsNone && viceTrump !== 'none') {
-      errors.push('Vice\'s trump must be None when Vice is None.');
+      errors.push({ key: 'err_vice_trump_none_required', args: [] });
     } else if (!viceIsNone && viceTrump === 'none') {
-      errors.push('Vice\'s trump can only be None when Vice is None.');
+      errors.push({ key: 'err_vice_trump_none_forbidden', args: [] });
     } else if (!viceIsNone && chiefTrump && viceTrump && chiefTrump === viceTrump) {
-      errors.push('Vice\'s trump must be different from Chief\'s trump.');
+      errors.push({ key: 'err_vice_trump_same', args: [] });
     }
   }
 
   if (chiefBid === null || chiefBid === undefined || chiefBid === '') {
-    errors.push('Chief\'s bid must be selected.');
+    errors.push({ key: 'err_bid_required', args: [] });
   }
 
   const bid = Number(chiefBid);
   const maxBid = getMaxBid(numPlayers);
   if (bid && (bid < 1 || bid > maxBid)) {
-    errors.push(`Chief's bid must be between 1 and ${maxBid}.`);
+    errors.push({ key: 'err_bid_range', args: [maxBid] });
   }
 
   // Check pips sum
@@ -235,10 +235,10 @@ export function computeNormalRoundScores(round, numPlayers) {
   const pipsSum = points.reduce((a, b) => a + (Number(b) || 0), 0);
   const allPipsFilled = points.every(p => p !== '' && p !== null && p !== undefined);
   if (allPipsFilled && pipsSum !== expectedSum) {
-    errors.push(`Card points must sum to ${expectedSum} (currently ${pipsSum}).`);
+    errors.push({ key: 'err_pips_sum', args: [expectedSum, pipsSum] });
   }
   if (!allPipsFilled) {
-    errors.push('All card points must be filled in.');
+    errors.push({ key: 'err_pips_incomplete', args: [] });
   }
 
   const target = (bid >= 1 && bid <= maxBid) ? getTeamTarget(numPlayers, bid) : null;
